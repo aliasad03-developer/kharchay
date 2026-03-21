@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kharchay-v1';
+const CACHE_NAME = 'kharchay-v2';
 const ASSETS = [
   '/kharchay/',
   '/kharchay/index.html',

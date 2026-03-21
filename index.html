@@ -56,40 +56,26 @@ const SEED_INC_B64 = "W1siMjAyNi0wMy0wMSIsICJTYWxhcnkiLCAiIiwgMTAwMDAwLjBdLCBbIj
 
 const { useState, useMemo, useCallback, useRef, useEffect } = React;
 // ── Simple CSS Charts (no external dependency) ──
-function SimpleBar({ data, dataKeyX, dataKeyY, dataKeyY2, fill, fill2, height = 200, showThousands = false }) {
+function SimpleBar({ data, dataKeyX, dataKeyY, dataKeyY2, fill, fill2, height = 200 }) {
   if (!data || !data.length) return null;
   const maxVal = Math.max(...data.map(d => Math.max(Number(d[dataKeyY])||0, Number(d[dataKeyY2])||0)));
   return (
-    <div>
-      {showThousands && <div style={{textAlign:"right",fontSize:10,color:"#94a3b8",marginBottom:4}}>PKR '000</div>}
-      <div style={{height,display:"flex",alignItems:"flex-end",gap:4,padding:"0 4px"}}>
-        {data.map((d, i) => {
-          const v1 = Number(d[dataKeyY]) || 0;
-          const v2 = dataKeyY2 ? (Number(d[dataKeyY2]) || 0) : 0;
-          const h1 = maxVal > 0 ? (v1 / maxVal) * (height - 50) : 0;
-          const h2 = maxVal > 0 ? (v2 / maxVal) * (height - 50) : 0;
-          const fmt = (v) => showThousands ? Math.round(v/1000) : v.toLocaleString();
-          return (
-            <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2,minWidth:0}}>
-              <div style={{display:"flex",gap:2,alignItems:"flex-end",width:"100%",justifyContent:"center",flex:1}}>
-                <div style={{width:dataKeyY2?"45%":"70%",display:"flex",flexDirection:"column",alignItems:"center"}}>
-                  <div style={{fontSize:8,color:fill||"#059669",fontWeight:600,marginBottom:2}}>{fmt(v1)}</div>
-                  <div style={{width:"100%",height:h1,background:fill||"#059669",borderRadius:"4px 4px 0 0",minHeight:v1>0?4:0,transition:"height 0.4s"}} title={dataKeyY+": "+v1.toLocaleString()} />
-                </div>
-                {dataKeyY2 && <div style={{width:"45%",display:"flex",flexDirection:"column",alignItems:"center"}}>
-                  <div style={{fontSize:8,color:fill2||"#dc2626",fontWeight:600,marginBottom:2}}>{fmt(v2)}</div>
-                  <div style={{width:"100%",height:h2,background:fill2||"#dc2626",borderRadius:"4px 4px 0 0",minHeight:v2>0?4:0,transition:"height 0.4s"}} title={dataKeyY2+": "+v2.toLocaleString()} />
-                </div>}
-              </div>
-              <div style={{fontSize:9,color:"#64748b",textAlign:"center",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{d[dataKeyX]}</div>
+    <div style={{height,display:"flex",alignItems:"flex-end",gap:4,padding:"0 4px"}}>
+      {data.map((d, i) => {
+        const v1 = Number(d[dataKeyY]) || 0;
+        const v2 = dataKeyY2 ? (Number(d[dataKeyY2]) || 0) : 0;
+        const h1 = maxVal > 0 ? (v1 / maxVal) * (height - 30) : 0;
+        const h2 = maxVal > 0 ? (v2 / maxVal) * (height - 30) : 0;
+        return (
+          <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2,minWidth:0}}>
+            <div style={{display:"flex",gap:2,alignItems:"flex-end",width:"100%",justifyContent:"center",flex:1}}>
+              <div style={{width:dataKeyY2?"45%":"70%",height:h1,background:fill||"#059669",borderRadius:"4px 4px 0 0",minHeight:v1>0?4:0,transition:"height 0.4s"}} title={dataKeyY+": "+v1.toLocaleString()} />
+              {dataKeyY2 && <div style={{width:"45%",height:h2,background:fill2||"#dc2626",borderRadius:"4px 4px 0 0",minHeight:v2>0?4:0,transition:"height 0.4s"}} title={dataKeyY2+": "+v2.toLocaleString()} />}
             </div>
-          );
-        })}
-      </div>
-      {dataKeyY2 && <div style={{display:"flex",justifyContent:"center",gap:16,marginTop:8}}>
-        <span style={{fontSize:10,display:"flex",alignItems:"center",gap:4}}><span style={{width:10,height:10,borderRadius:2,background:fill||"#059669",display:"inline-block"}} />Income</span>
-        <span style={{fontSize:10,display:"flex",alignItems:"center",gap:4}}><span style={{width:10,height:10,borderRadius:2,background:fill2||"#dc2626",display:"inline-block"}} />Expense</span>
-      </div>}
+            <div style={{fontSize:9,color:"#64748b",textAlign:"center",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%"}}>{d[dataKeyX]}</div>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -100,7 +86,7 @@ function SimplePie({ data, height = 200 }) {
   if (total === 0) return null;
   const colors = ["#059669","#2563eb","#d97706","#dc2626","#7c3aed","#db2777","#0891b2","#65a30d","#ea580c","#4f46e5"];
   let cumAngle = 0;
-  const radius = 80, cx = 120, cy = 100, inner = 50;
+  const radius = 80, cx = 100, cy = 100, inner = 50;
   const arcs = data.map((d, i) => {
     const angle = (d.value / total) * 360;
     const startAngle = cumAngle;
@@ -114,18 +100,12 @@ function SimplePie({ data, height = 200 }) {
     const x1i = cx + inner * Math.cos(endRad), y1i = cy + inner * Math.sin(endRad);
     const x2i = cx + inner * Math.cos(startRad), y2i = cy + inner * Math.sin(startRad);
     const path = `M${x1o},${y1o} A${radius},${radius} 0 ${largeArc},1 ${x2o},${y2o} L${x1i},${y1i} A${inner},${inner} 0 ${largeArc},0 ${x2i},${y2i} Z`;
-    const midAngle = ((startAngle + endAngle) / 2 - 90) * Math.PI / 180;
-    const labelR = radius + 14;
-    const lx = cx + labelR * Math.cos(midAngle);
-    const ly = cy + labelR * Math.sin(midAngle);
-    const pct = ((d.value/total)*100).toFixed(1);
-    return { path, color: colors[i % colors.length], name: d.name, value: d.value, pct, lx, ly, angle };
+    return { path, color: colors[i % colors.length], name: d.name, value: d.value, pct: ((d.value/total)*100).toFixed(1) };
   });
   return (
     <div style={{textAlign:"center"}}>
-      <svg viewBox="0 0 240 200" width={height*1.2} height={height}>
-        {arcs.map((a, i) => <path key={i} d={a.path} fill={a.color} stroke="#fff" strokeWidth="2"><title>{a.name}: Rs {a.value.toLocaleString()} ({a.pct}%)</title></path>)}
-        {arcs.filter(a=>a.angle>15).map((a, i) => <text key={"t"+i} x={a.lx} y={a.ly} textAnchor="middle" dominantBaseline="middle" fill={a.color} fontSize="8" fontWeight="600">{a.pct}%</text>)}
+      <svg viewBox="0 0 200 200" width={height} height={height}>
+        {arcs.map((a, i) => <path key={i} d={a.path} fill={a.color} stroke="#fff" strokeWidth="2"><title>{a.name}: {a.value.toLocaleString()} ({a.pct}%)</title></path>)}
       </svg>
     </div>
   );
@@ -425,7 +405,6 @@ function FinanceApp() {
   const [budgets, setBudgets] = useState([]);
   const [investments, setInvestments] = useState([]);
   const [savings, setSavings] = useState([]);
-  const [savingsGoals, setSavingsGoals] = useState([]); // {id, name, icon, target, deadline}
   const [ledger, setLedger] = useState([]);
   const [events, setEvents] = useState([]);
   const [lastSaved, setLastSaved] = useState(null);
@@ -438,10 +417,8 @@ function FinanceApp() {
   const resetDrill = () => { setDrillLevel("overview"); setDrillMonth(null); setDrillCategory(null); };
   const [eventFilter, setEventFilter] = useState("all");
 
-  // ── Hybrid Storage: localStorage (fast) + Google Sheets (sync) ──
-  const STORAGE_KEY = "kharchay_pwa_v4";
-  const [apiUrl, setApiUrl] = useState(() => localStorage.getItem("kharchay_api_url") || "");
-  const [syncStatus, setSyncStatus] = useState("");
+  // ── Local Storage Persistence ──
+  const STORAGE_KEY = "kharchay_pwa_v3";
 
   const seedExpenses = () => {
     try {
@@ -455,137 +432,46 @@ function FinanceApp() {
   };
   const seedEvents = [{id:"ev_nikkah",name:"Nikkah Expenses",icon:"💒",date:"2025-12-01",notes:"Wedding related expenses"}];
 
-  const applyData = (d) => {
-    if (d.expenses?.length) setExpenses(d.expenses); else setExpenses(seedExpenses());
-    if (d.incomes?.length) setIncomes(d.incomes);  else setIncomes(seedIncomes());
-    setBudgets(d.budgets || []);
-    setInvestments(d.investments || []);
-    setSavings(d.savings || []);
-    setLedger(d.ledger || []);
-    setEvents(d.events?.length ? d.events : seedEvents);
-            setSavingsGoals(d.savingsGoals || []);
-  };
-
-  // Load: try Google Sheets first, fall back to localStorage, then seed
   useEffect(() => {
-    const load = async () => {
-      // 1. Try Google Sheets if URL configured
-      if (apiUrl) {
-        try {
-          setSyncing(true);
-          setSyncStatus("Loading from Google Sheets...");
-          const res = await fetch(apiUrl + "?action=read");
-          const json = await res.json();
-          if (json.success && json.data) {
-            const d = json.data;
-            const mapped = {
-              expenses: d.expenses || [],
-              incomes: d.income || d.incomes || [],
-              budgets: d.budgets || [],
-              investments: d.investments || [],
-              savings: d.savings || [],
-              ledger: d.ledger || [],
-              events: d.events || [],
-              savingsGoals: d.savingsGoals || []
-            };
-            applyData(mapped);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(mapped));
-            setSyncStatus("Synced with Google Sheets");
-            setSyncing(false);
-            setLoaded(true);
-            return;
-          }
-        } catch(e) {
-          console.log("Google Sheets load failed, using local:", e);
-          setSyncStatus("Offline — using local data");
-        }
-        setSyncing(false);
-      }
-      // 2. Fall back to localStorage
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          applyData(JSON.parse(raw));
-        } else {
-          setExpenses(seedExpenses());
-          setIncomes(seedIncomes());
-          setEvents(seedEvents);
-        }
-      } catch(e) {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const d = JSON.parse(raw);
+        setExpenses(d.expenses?.length ? d.expenses : seedExpenses());
+        setIncomes(d.incomes?.length ? d.incomes : seedIncomes());
+        setBudgets(d.budgets || []);
+        setInvestments(d.investments || []);
+        setSavings(d.savings || []);
+        setLedger(d.ledger || []);
+        setEvents(d.events?.length ? d.events : seedEvents);
+      } else {
         setExpenses(seedExpenses());
         setIncomes(seedIncomes());
         setEvents(seedEvents);
       }
-      setLoaded(true);
-    };
-    load();
+    } catch(e) {
+      console.error("Load failed:", e);
+      setExpenses(seedExpenses());
+      setIncomes(seedIncomes());
+      setEvents(seedEvents);
+    }
+    setLoaded(true);
   }, []);
 
-  // Save: always localStorage (instant) + Google Sheets if configured (background)
   const saveTimer = useRef(null);
   useEffect(() => {
     if (!loaded) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(async () => {
-      const data = { expenses, incomes, budgets, investments, savings, savingsGoals, ledger, events };
-      // Always save locally (instant)
+    saveTimer.current = setTimeout(() => {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      } catch(e) {}
-      // Also save to Google Sheets if configured
-      if (apiUrl) {
-        try {
-          setSyncing(true);
-          setSyncStatus("Syncing...");
-          await fetch(apiUrl + "?action=write", {
-            method: "POST",
-            headers: {"Content-Type":"text/plain"},
-            body: JSON.stringify(data)
-          });
-          setSyncStatus("Synced ✓");
-        } catch(e) {
-          setSyncStatus("Sync failed — saved locally");
-        }
+        setSyncing(true);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ expenses, incomes, budgets, investments, savings, ledger, events }));
+        setLastSaved(new Date().toLocaleTimeString());
         setSyncing(false);
-      }
-      setLastSaved(new Date().toLocaleTimeString());
-    }, 1500);
+      } catch(e) { console.error("Save failed:", e); setSyncing(false); }
+    }, 500);
     return () => { if (saveTimer.current) clearTimeout(saveTimer.current); };
-  }, [loaded, expenses, incomes, budgets, investments, savings, savingsGoals, ledger, events]);
-
-  // Settings modal for Google Sheets URL
-  const SettingsPanel = () => {
-    const [url, setUrl] = useState(apiUrl);
-    return (
-      <div>
-        <p style={{fontSize:13,color:T.textSec,marginBottom:16,lineHeight:1.6}}>
-          Connect to Google Sheets for cross-device sync. Your data will save to both this device AND your Google Sheet — so you can access it from any laptop or phone.
-        </p>
-        <div style={{marginBottom:14}}>
-          <label style={{display:"block",fontSize:12,color:T.textSec,marginBottom:5,fontWeight:500}}>Google Apps Script URL</label>
-          <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://script.google.com/macros/s/..." style={{width:"100%",boxSizing:"border-box",padding:"10px 14px",background:T.inputBg,border:"1px solid "+T.border,borderRadius:8,color:T.text,fontSize:13,outline:"none"}} />
-        </div>
-        {apiUrl && <div style={{background:"#ecfdf5",borderRadius:8,padding:"10px 14px",marginBottom:14,fontSize:12,color:"#059669"}}>✅ Connected — {syncStatus || "syncing with Google Sheets"}</div>}
-        {!apiUrl && <div style={{background:"#fffbeb",borderRadius:8,padding:"10px 14px",marginBottom:14,fontSize:12,color:"#d97706"}}>⚠️ Not connected — data only saved on this device</div>}
-        <div style={{display:"flex",gap:10}}>
-          <button onClick={()=>{
-            if(url && url.startsWith("https://")) {
-              localStorage.setItem("kharchay_api_url", url);
-              setApiUrl(url);
-              setModal(null);
-              window.location.reload();
-            } else if (!url) {
-              localStorage.removeItem("kharchay_api_url");
-              setApiUrl("");
-              setModal(null);
-            }
-          }} style={{padding:"10px 20px",borderRadius:8,background:"linear-gradient(135deg,#059669,#047857)",color:"#fff",border:"none",fontSize:13,fontWeight:600,cursor:"pointer"}}>{url ? "Connect & Sync" : "Disconnect"}</button>
-          <button onClick={()=>setModal(null)} style={{padding:"10px 20px",borderRadius:8,background:"#fff",color:T.text,border:"1px solid "+T.borderStrong,fontSize:13,cursor:"pointer"}}>Cancel</button>
-        </div>
-        <p style={{fontSize:11,color:T.textMuted,marginTop:14}}>Follow the Setup Guide to create your Google Apps Script URL. Without it, the app works fine but data stays on this device only.</p>
-      </div>
-    );
-  };
+  }, [loaded, expenses, incomes, budgets, investments, savings, ledger, events]);
 
   // ── Computed stats ──
   const totalExpense = useMemo(() => expenses.reduce((s, e) => s + Number(e.amount), 0), [expenses]);
@@ -810,7 +696,7 @@ function FinanceApp() {
           {monthlyChartData.length > 0 && (
             <div style={{flex:"1 1 400px",background:"#fff",borderRadius:14,padding:22,border:`1px solid ${T.border}`,boxShadow:T.shadow}}>
               <div style={{fontSize:14,fontWeight:600,color:T.heading,marginBottom:16,fontFamily:"'Playfair Display',serif"}}>6-Month Trend</div>
-              <SimpleBar data={monthlyChartData} dataKeyX="month" dataKeyY="income" dataKeyY2="expense" fill="#059669" fill2="#dc2626" height={200} showThousands />
+              <SimpleBar data={monthlyChartData} dataKeyX="month" dataKeyY="income" dataKeyY2="expense" fill="#059669" fill2="#dc2626" height={200} />
             </div>
           )}
         </div>
@@ -1284,23 +1170,8 @@ function FinanceApp() {
 
   const investByType = useMemo(() => {
     const m = {}; investments.forEach(i => { m[i.type] = (m[i.type] || 0) + Number(i.amount); });
-    return Object.entries(m).map(([name, value]) => ({ name, value })).sort((a,b)=>b.value-a.value);
+    return Object.entries(m).map(([name, value]) => ({ name, value }));
   }, [investments]);
-
-  const investMonthly = useMemo(() => {
-    const m = {};
-    investments.forEach(inv => {
-      const d = new Date(inv.date);
-      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
-      const label = MONTHS[d.getMonth()] + " " + d.getFullYear();
-      if (!m[key]) m[key] = { key, month: label, amount: 0 };
-      m[key].amount += Number(inv.amount);
-    });
-    return Object.values(m).sort((a, b) => a.key.localeCompare(b.key)).slice(-6);
-  }, [investments]);
-
-  const investRate = totalIncome > 0 ? ((totalInvested / totalIncome) * 100).toFixed(1) : 0;
-  const avgMonthlyInvest = investMonthly.length > 0 ? investMonthly.reduce((s,m)=>s+m.amount,0) / investMonthly.length : 0;
 
   const renderInvestments = () => (
     <div>
@@ -1309,65 +1180,27 @@ function FinanceApp() {
         <Btn variant="secondary" onClick={()=>triggerImport("invest")}>↑ Import CSV</Btn>
         <Btn variant="secondary" onClick={()=>exportCSV(investments,"investments.csv",[{key:"date",label:"Date"},{key:"type",label:"Type"},{key:"name",label:"Name"},{key:"amount",label:"Amount"},{key:"notes",label:"Notes"}])}>↓ Export CSV</Btn>
       </div>
-
-      {/* Analytics Cards */}
-      <div style={{display:"flex",flexWrap:"wrap",gap:14,marginBottom:20}}>
-        <StatCard icon="◆" label="Total Invested" value={fmt(totalInvested)} accent="#7c3aed" />
-        <StatCard icon="📅" label={`${thisMonthLabel}`} value={fmt(thisMonthInvest)} accent="#059669" />
-        <StatCard icon="📊" label="Investment Rate" value={investRate+"%"} accent="#2563eb" sub="of total income" />
-        <StatCard icon="📈" label="Avg Monthly" value={fmt(avgMonthlyInvest)} accent="#0891b2" />
-      </div>
-
-      {/* Charts Row */}
-      <div style={{display:"flex",flexWrap:"wrap",gap:20,marginBottom:20}}>
-        {investByType.length > 0 && (
-          <div style={{flex:"1 1 280px",background:"#fff",borderRadius:14,padding:22,border:`1px solid ${T.border}`,boxShadow:T.shadow}}>
-            <div style={{fontSize:14,fontWeight:600,color:T.heading,marginBottom:16,fontFamily:"'Playfair Display',serif"}}>Portfolio Breakdown</div>
-            <SimplePie data={investByType} height={160} />
-            <div style={{display:"flex",flexWrap:"wrap",gap:"6px 14px",marginTop:8}}>
-              {investByType.map((c,i) => (
-                <div key={c.name} style={{fontSize:11,color:T.textSec,display:"flex",alignItems:"center",gap:5}}>
-                  <span style={{width:8,height:8,borderRadius:"50%",background:COLORS[i%COLORS.length],display:"inline-block"}} />{c.name}: {fmt(c.value)}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        {investMonthly.length > 0 && (
-          <div style={{flex:"1 1 350px",background:"#fff",borderRadius:14,padding:22,border:`1px solid ${T.border}`,boxShadow:T.shadow}}>
-            <div style={{fontSize:14,fontWeight:600,color:T.heading,marginBottom:16,fontFamily:"'Playfair Display',serif"}}>Monthly Investment Trend</div>
-            <SimpleBar data={investMonthly} dataKeyX="month" dataKeyY="amount" fill="#7c3aed" height={140} showThousands />
-          </div>
-        )}
-      </div>
-
-      {/* Allocation Table */}
+      <StatCard icon="◆" label="Total Invested" value={fmt(totalInvested)} accent="#2563eb" />
+      <div style={{marginTop:18}} />
       {investByType.length > 0 && (
         <div style={{background:"#fff",borderRadius:14,padding:22,border:`1px solid ${T.border}`,boxShadow:T.shadow,marginBottom:20}}>
-          <div style={{fontSize:14,fontWeight:600,color:T.heading,marginBottom:12,fontFamily:"'Playfair Display',serif"}}>Asset Allocation</div>
-          {investByType.map(t => {
-            const pct = totalInvested > 0 ? (t.value / totalInvested) * 100 : 0;
-            return (
-              <div key={t.name} style={{marginBottom:10}}>
-                <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:4}}>
-                  <span style={{color:T.text,fontWeight:500}}>{t.name}</span>
-                  <span style={{color:T.textSec}}>{fmt(t.value)} ({pct.toFixed(1)}%)</span>
-                </div>
-                <div style={{height:6,background:T.surfaceAlt,borderRadius:3,overflow:"hidden"}}>
-                  <div style={{height:"100%",width:`${pct}%`,background:"#7c3aed",borderRadius:3,transition:"width 0.5s"}} />
-                </div>
+          <div style={{fontSize:14,fontWeight:600,color:T.heading,marginBottom:16,fontFamily:"'Playfair Display',serif"}}>Portfolio Breakdown</div>
+          <SimplePie data={investByType} height={160} />
+          <div style={{display:"flex",flexWrap:"wrap",gap:"6px 14px",marginTop:8}}>
+            {investByType.map((c,i) => (
+              <div key={c.name} style={{fontSize:11,color:T.textSec,display:"flex",alignItems:"center",gap:5}}>
+                <span style={{width:8,height:8,borderRadius:"50%",background:COLORS[i%COLORS.length],display:"inline-block"}} />{c.name}: {fmt(c.value)}
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
       )}
-
       {investments.length ? (
         <Table columns={[
           {key:"date",label:"Date"},
           {key:"type",label:"Type",render:r=><span style={{background:"#eef2ff",padding:"3px 10px",borderRadius:20,fontSize:12,color:"#4f46e5",fontWeight:500}}>{r.type}</span>},
           {key:"name",label:"Name"},
-          {key:"amount",label:"Amount",render:r=><span style={{color:"#7c3aed",fontWeight:600}}>{fmt(r.amount)}</span>},
+          {key:"amount",label:"Amount",render:r=><span style={{color:"#2563eb",fontWeight:600}}>{fmt(r.amount)}</span>},
           {key:"notes",label:"Notes"}
         ]} data={investments} onDelete={del(setInvestments)} />
       ) : <EmptyState icon="📈" text="No investments recorded yet" />}
@@ -1459,54 +1292,16 @@ function FinanceApp() {
   };
 
   // ── Savings ──
-  const GOAL_ICONS = ["🚗","🏠","✈️","📱","💍","🎓","🏥","👶","💰","🎯"];
-  
   const SavingsForm = () => {
-    const [f, setF] = useState({ date: today(), type: "General Savings", description: "", amount: "", goalId: "" });
+    const [f, setF] = useState({ date: today(), type: "General Savings", description: "", amount: "" });
     return (
       <div>
         <Input label="Date" type="date" value={f.date} onChange={e=>setF({...f,date:e.target.value})} />
         <Select label="Savings Type" options={SAVINGS_TYPES} value={f.type} onChange={e=>setF({...f,type:e.target.value})} />
         <Input label="Description" value={f.description} onChange={e=>setF({...f,description:e.target.value})} placeholder="e.g. Monthly savings from salary" />
         <Input label="Amount (₨)" type="number" value={f.amount} onChange={e=>setF({...f,amount:e.target.value})} placeholder="0" />
-        {savingsGoals.length > 0 && (
-          <div style={{marginBottom:14}}>
-            <label style={{display:"block",fontSize:12,color:T.textSec,marginBottom:8,fontWeight:500}}>Link to Goal <span style={{color:T.textMuted,fontWeight:400}}>(optional)</span></label>
-            <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-              <button type="button" onClick={()=>setF({...f,goalId:""})} style={{padding:"6px 12px",borderRadius:8,border:`2px solid ${!f.goalId?T.accent:T.border}`,background:!f.goalId?"#ecfdf5":"#fff",fontSize:11,cursor:"pointer",color:!f.goalId?T.accent:T.textSec,fontWeight:!f.goalId?600:400}}>None</button>
-              {savingsGoals.map(g=>(
-                <button key={g.id} type="button" onClick={()=>setF({...f,goalId:g.id})} style={{padding:"6px 12px",borderRadius:8,border:`2px solid ${f.goalId===g.id?"#2563eb":T.border}`,background:f.goalId===g.id?"#eff6ff":"#fff",fontSize:11,cursor:"pointer",color:f.goalId===g.id?"#2563eb":T.text,fontWeight:f.goalId===g.id?600:400,display:"flex",alignItems:"center",gap:4}}>
-                  <span>{g.icon}</span>{g.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
         <div style={{display:"flex",gap:10,marginTop:18}}>
           <Btn onClick={()=>{if(f.amount){setSavings(p=>[{id:uid(),...f,amount:Number(f.amount)},...p]);setModal(null)}}}>Add Savings</Btn>
-          <Btn variant="secondary" onClick={()=>setModal(null)}>Cancel</Btn>
-        </div>
-      </div>
-    );
-  };
-
-  const GoalForm = () => {
-    const [f, setF] = useState({ name: "", icon: "🚗", target: "", deadline: "" });
-    return (
-      <div>
-        <Input label="Goal Name" value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder="e.g. New Car, House Down Payment" />
-        <div style={{marginBottom:14}}>
-          <label style={{display:"block",fontSize:12,color:T.textSec,marginBottom:8,fontWeight:500}}>Icon</label>
-          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-            {GOAL_ICONS.map(ic=>(
-              <button key={ic} type="button" onClick={()=>setF({...f,icon:ic})} style={{width:40,height:40,borderRadius:10,border:`2px solid ${f.icon===ic?"#2563eb":T.border}`,background:f.icon===ic?"#eff6ff":"#fff",cursor:"pointer",fontSize:20,display:"flex",alignItems:"center",justifyContent:"center"}}>{ic}</button>
-            ))}
-          </div>
-        </div>
-        <Input label="Target Amount (₨)" type="number" value={f.target} onChange={e=>setF({...f,target:e.target.value})} placeholder="e.g. 2000000" />
-        <Input label="Target Date (optional)" type="date" value={f.deadline} onChange={e=>setF({...f,deadline:e.target.value})} />
-        <div style={{display:"flex",gap:10,marginTop:18}}>
-          <Btn onClick={()=>{if(f.name&&f.target){setSavingsGoals(p=>[{id:uid(),...f,target:Number(f.target)},...p]);setModal(null)}}}>Create Goal</Btn>
           <Btn variant="secondary" onClick={()=>setModal(null)}>Cancel</Btn>
         </div>
       </div>
@@ -1531,60 +1326,33 @@ function FinanceApp() {
     return Object.values(m).sort((a, b) => a.key.localeCompare(b.key)).slice(-6);
   }, [savings]);
 
-  // Savings analytics
-  const savingsRate = totalIncome > 0 ? ((totalSaved / totalIncome) * 100).toFixed(1) : 0;
-  const avgMonthlySavings = savingsMonthly.length > 0 ? savingsMonthly.reduce((s,m)=>s+m.amount,0) / savingsMonthly.length : 0;
-
   const renderSavings = () => (
     <div>
       <div style={{display:"flex",flexWrap:"wrap",gap:10,marginBottom:20}}>
         <Btn onClick={()=>setModal("savings")}>+ Add Savings</Btn>
-        <Btn onClick={()=>setModal("goal")} variant="secondary" style={{display:"flex",alignItems:"center",gap:4}}>🎯 New Goal</Btn>
         <Btn variant="secondary" onClick={()=>triggerImport("savings")}>↑ Import CSV</Btn>
-        <Btn variant="secondary" onClick={()=>exportCSV(savings,"savings.csv",[{key:"date",label:"Date"},{key:"type",label:"Type"},{key:"description",label:"Description"},{key:"amount",label:"Amount"},{key:"goalId",label:"Goal"}])}>↓ Export CSV</Btn>
+        <Btn variant="secondary" onClick={()=>exportCSV(savings,"savings.csv",[{key:"date",label:"Date"},{key:"type",label:"Type"},{key:"description",label:"Description"},{key:"amount",label:"Amount"}])}>↓ Export CSV</Btn>
       </div>
-
-      {/* Analytics Cards */}
       <div style={{display:"flex",flexWrap:"wrap",gap:14,marginBottom:20}}>
         <StatCard icon="🏦" label="Total Savings" value={fmt(totalSaved)} accent="#2563eb" />
-        <StatCard icon="📅" label={`${thisMonthLabel}`} value={fmt(thisMonthSavings)} accent="#059669" />
-        <StatCard icon="📊" label="Savings Rate" value={savingsRate+"%"} accent="#7c3aed" sub="of total income" />
-        <StatCard icon="📈" label="Avg Monthly" value={fmt(avgMonthlySavings)} accent="#0891b2" />
+        <StatCard icon="📅" label={`${thisMonthLabel} Savings`} value={fmt(thisMonthSavings)} accent="#059669" />
       </div>
 
-      {/* Savings Goals */}
-      {savingsGoals.length > 0 && (
+      {/* Savings by Type */}
+      {savingsByType.length > 0 && (
         <div style={{background:"#fff",borderRadius:14,padding:22,border:`1px solid ${T.border}`,boxShadow:T.shadow,marginBottom:20}}>
-          <div style={{fontSize:14,fontWeight:600,color:T.heading,marginBottom:16,fontFamily:"'Playfair Display',serif"}}>🎯 Savings Goals</div>
-          <div style={{display:"flex",flexDirection:"column",gap:12}}>
-            {savingsGoals.map(g => {
-              const saved = savings.filter(s=>s.goalId===g.id).reduce((s,e)=>s+Number(e.amount),0);
-              const pct = g.target > 0 ? Math.min((saved/g.target)*100,100) : 0;
-              const remaining = g.target - saved;
-              const daysLeft = g.deadline ? Math.max(0, Math.ceil((new Date(g.deadline) - new Date()) / 86400000)) : null;
-              const monthlyNeeded = daysLeft && remaining > 0 ? Math.ceil(remaining / Math.max(1, daysLeft/30)) : null;
+          <div style={{fontSize:14,fontWeight:600,color:T.heading,marginBottom:16,fontFamily:"'Playfair Display',serif"}}>Savings Breakdown</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:12}}>
+            {savingsByType.map(s => {
+              const pct = totalSaved > 0 ? ((s.value / totalSaved) * 100).toFixed(1) : 0;
               return (
-                <div key={g.id} style={{background:T.surfaceAlt,borderRadius:12,padding:"18px 20px",position:"relative",overflow:"hidden"}}>
-                  <div style={{position:"absolute",bottom:0,left:0,right:0,height:4,background:"#dbeafe"}}>
-                    <div style={{height:"100%",width:`${pct}%`,background:pct>=100?"#059669":"#2563eb",borderRadius:2,transition:"width 0.5s"}} />
+                <div key={s.name} style={{flex:"1 1 180px",background:"#eff6ff",borderRadius:12,padding:"16px 18px",border:"1px solid #2563eb15"}}>
+                  <div style={{fontSize:12,color:"#2563eb",fontWeight:500,marginBottom:4}}>{s.name}</div>
+                  <div style={{fontSize:20,fontWeight:700,color:T.heading,fontFamily:"'Playfair Display',serif"}}>{fmt(s.value)}</div>
+                  <div style={{height:4,background:"#dbeafe",borderRadius:2,marginTop:8,overflow:"hidden"}}>
+                    <div style={{height:"100%",width:`${pct}%`,background:"#2563eb",borderRadius:2}} />
                   </div>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
-                    <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <span style={{fontSize:28}}>{g.icon}</span>
-                      <div>
-                        <div style={{fontSize:15,fontWeight:600,color:T.heading}}>{g.name}</div>
-                        <div style={{fontSize:11,color:T.textMuted}}>{g.deadline ? `Deadline: ${g.deadline}` : "No deadline"}{daysLeft !== null ? ` · ${daysLeft} days left` : ""}</div>
-                      </div>
-                    </div>
-                    <button onClick={()=>setSavingsGoals(p=>p.filter(x=>x.id!==g.id))} style={{background:"none",border:"none",color:T.textMuted,cursor:"pointer",fontSize:16}}>×</button>
-                  </div>
-                  <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-                    <div><div style={{fontSize:10,color:T.textMuted}}>Saved</div><div style={{fontSize:18,fontWeight:700,color:"#2563eb",fontFamily:"'Playfair Display',serif"}}>{fmt(saved)}</div></div>
-                    <div><div style={{fontSize:10,color:T.textMuted}}>Target</div><div style={{fontSize:18,fontWeight:700,color:T.heading,fontFamily:"'Playfair Display',serif"}}>{fmt(g.target)}</div></div>
-                    <div><div style={{fontSize:10,color:T.textMuted}}>Progress</div><div style={{fontSize:18,fontWeight:700,color:pct>=100?"#059669":"#d97706",fontFamily:"'Playfair Display',serif"}}>{pct.toFixed(1)}%</div></div>
-                    {remaining > 0 && <div><div style={{fontSize:10,color:T.textMuted}}>Remaining</div><div style={{fontSize:18,fontWeight:700,color:"#dc2626",fontFamily:"'Playfair Display',serif"}}>{fmt(remaining)}</div></div>}
-                    {monthlyNeeded && <div><div style={{fontSize:10,color:T.textMuted}}>Need/month</div><div style={{fontSize:18,fontWeight:700,color:"#7c3aed",fontFamily:"'Playfair Display',serif"}}>{fmt(monthlyNeeded)}</div></div>}
-                  </div>
+                  <div style={{fontSize:10,color:T.textMuted,marginTop:4}}>{pct}% of total</div>
                 </div>
               );
             })}
@@ -1592,21 +1360,13 @@ function FinanceApp() {
         </div>
       )}
 
-      {/* Savings Charts Row */}
-      <div style={{display:"flex",flexWrap:"wrap",gap:20,marginBottom:20}}>
-        {savingsByType.length > 0 && (
-          <div style={{flex:"1 1 280px",background:"#fff",borderRadius:14,padding:22,border:`1px solid ${T.border}`,boxShadow:T.shadow}}>
-            <div style={{fontSize:14,fontWeight:600,color:T.heading,marginBottom:16,fontFamily:"'Playfair Display',serif"}}>By Type</div>
-            <SimplePie data={savingsByType} height={160} />
-          </div>
-        )}
-        {savingsMonthly.length > 0 && (
-          <div style={{flex:"1 1 350px",background:"#fff",borderRadius:14,padding:22,border:`1px solid ${T.border}`,boxShadow:T.shadow}}>
-            <div style={{fontSize:14,fontWeight:600,color:T.heading,marginBottom:16,fontFamily:"'Playfair Display',serif"}}>Monthly Trend</div>
-            <SimpleBar data={savingsMonthly} dataKeyX="month" dataKeyY="amount" fill="#2563eb" height={140} showThousands />
-          </div>
-        )}
-      </div>
+      {/* Monthly Savings Trend */}
+      {savingsMonthly.length > 0 && (
+        <div style={{background:"#fff",borderRadius:14,padding:22,border:`1px solid ${T.border}`,boxShadow:T.shadow,marginBottom:20}}>
+          <div style={{fontSize:14,fontWeight:600,color:T.heading,marginBottom:16,fontFamily:"'Playfair Display',serif"}}>Monthly Savings Trend</div>
+          <SimpleBar data={savingsMonthly} dataKeyX="month" dataKeyY="amount" fill="#2563eb" height={160} />
+        </div>
+      )}
 
       {/* Transactions Table */}
       {savings.length ? (
@@ -1614,12 +1374,10 @@ function FinanceApp() {
           {key:"date",label:"Date"},
           {key:"type",label:"Type",render:r=><span style={{background:"#eff6ff",padding:"3px 10px",borderRadius:20,fontSize:12,color:"#2563eb",fontWeight:500}}>{r.type}</span>},
           {key:"description",label:"Description"},
-          {key:"goalId",label:"Goal",render:r=>{const g=savingsGoals.find(x=>x.id===r.goalId);return g?<span style={{fontSize:12}}>{g.icon} {g.name}</span>:<span style={{color:T.textMuted,fontSize:12}}>—</span>}},
           {key:"amount",label:"Amount",render:r=><span style={{color:"#2563eb",fontWeight:600}}>{fmt(r.amount)}</span>}
         ]} data={savings} onDelete={del(setSavings)} />
       ) : <EmptyState icon="🏦" text="No savings recorded yet. Start building your safety net!" />}
       <Modal open={modal==="savings"} onClose={()=>setModal(null)} title="Add Savings"><SavingsForm /></Modal>
-      <Modal open={modal==="goal"} onClose={()=>setModal(null)} title="🎯 New Savings Goal"><GoalForm /></Modal>
     </div>
   );
 
@@ -1826,11 +1584,7 @@ function FinanceApp() {
             <span style={{width:6,height:6,borderRadius:"50%",background:"#059669",display:"inline-block"}} />
             Saved {lastSaved}
           </span> : null}
-          {apiUrl && syncStatus && <span style={{fontSize:10,color:syncStatus.includes("✓")?"#059669":syncStatus.includes("fail")?"#dc2626":"#d97706",display:"flex",alignItems:"center",gap:3}}>
-            <span style={{width:5,height:5,borderRadius:"50%",background:syncStatus.includes("✓")?"#059669":syncStatus.includes("fail")?"#dc2626":"#d97706",display:"inline-block"}} />{syncStatus}
-          </span>}
           <button onClick={()=>setModal("export")} style={{display:"flex",alignItems:"center",gap:6,padding:"9px 18px",borderRadius:9,border:`1px solid ${T.borderStrong}`,background:"#fff",fontSize:13,cursor:"pointer",color:T.text,fontWeight:500,boxShadow:T.shadow}}>📥 Export</button>
-          <button onClick={()=>setModal("settings")} style={{display:"flex",alignItems:"center",gap:4,padding:"9px 14px",borderRadius:9,border:`1px solid ${T.borderStrong}`,background:apiUrl?"#ecfdf5":"#fff",fontSize:13,cursor:"pointer",color:apiUrl?"#059669":T.textSec,fontWeight:500,boxShadow:T.shadow}}>{apiUrl?"☁️":"⚙️"}</button>
         </div>
       </header>
 
@@ -1858,7 +1612,6 @@ function FinanceApp() {
         </main>
       </div>
       <Modal open={modal==="export"} onClose={()=>setModal(null)} title="📥 Export to Excel"><ExportModal /></Modal>
-      <Modal open={modal==="settings"} onClose={()=>setModal(null)} title="⚙️ Sync Settings"><SettingsPanel /></Modal>
       <MobileNav tab={tab} setTab={setTab} tabs={TABS} resetDrill={resetDrill} />
     </div>
   );
