@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kharchay-v3';
+const CACHE_NAME = 'kharchay-v4';
 
 self.addEventListener('install', function(e) {
   self.skipWaiting();
